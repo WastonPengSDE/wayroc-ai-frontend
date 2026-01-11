@@ -111,6 +111,12 @@ export default defineConfig({
       },
     },
   },
+
+  locale: {
+    default: 'en-US',   // 默认语言
+    antd: true,         // 让 antd 跟着一起用 en-US
+    baseNavigator: false, // 不再跟浏览器语言走
+  },
   /**
    * @name 网络请求配置
    * @description 它基于 axios 和 ahooks 的 useRequest 提供了一套统一的网络请求和错误处理方案。
