@@ -7,7 +7,7 @@ export async function login(
   body: API.UserLoginRequest,
   options?: { [key: string]: any }
 ) {
-  return request<Record<string, any>>("/user/login", {
+  return request<Record<string, any>>("/api/user/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -19,7 +19,7 @@ export async function login(
 
 /** 此处后端没有提供注释 POST /user/logout */
 export async function logout(options?: { [key: string]: any }) {
-  return request<Record<string, any>>("/user/logout", {
+  return request<Record<string, any>>("/api/user/logout", {
     method: "POST",
     ...(options || {}),
   });
@@ -30,7 +30,7 @@ export async function register(
   body: API.UserRegisterRequest,
   options?: { [key: string]: any }
 ) {
-  return request<API.BaseResponseLong>("/user/register", {
+  return request<API.BaseResponseLong>("/api/user/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

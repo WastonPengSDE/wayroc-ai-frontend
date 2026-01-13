@@ -32,18 +32,22 @@ export async function getInitialState(): Promise<{
     }
     return undefined;
   };
-  // 如果不是登录页面，执行
-  const { location } = history;
-  if (![loginPath, '/user/register', '/user/register-result'].includes(location.pathname)) {
-    const currentUser = await fetchUserInfo();
-    return {
-      fetchUserInfo,
-      currentUser,
-      settings: defaultSettings as Partial<LayoutSettings>,
-    };
-  }
-  return {
+  // // 如果不是登录页面，执行
+  // const { location } = history;
+  // if (![loginPath, '/user/register', '/user/register-result'].includes(location.pathname)) {
+  //   const currentUser = await fetchUserInfo();
+  //   return {
+  //     fetchUserInfo,
+  //     currentUser,
+  //     settings: defaultSettings as Partial<LayoutSettings>,
+  //   };
+  // }
+   return {
     fetchUserInfo,
+    // 如果你想看到水印/头像，可以给一个“假用户”，不想也可以删掉
+    currentUser: {
+      name: 'Wayroc Demo',
+    } as API.CurrentUser,
     settings: defaultSettings as Partial<LayoutSettings>,
   };
 }
