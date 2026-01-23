@@ -1,4 +1,4 @@
-import { getChart } from '@/services/wayroc/chartController';
+import { genChart } from '@/services/wayroc/chartController';
 import { UploadOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Divider, Form, Input, message, Row, Select, Space, Spin, Upload } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
@@ -24,15 +24,17 @@ const AddChart: React.FC = () => {
     setChart(undefined);
     setOption(undefined);
 
+    const file = values.file?.[0]?.originFileObj;
     const params = {
-      ...values,
-      file: undefined,
-    };
+      name: values.name,
+      goal: values.goal,
+      chartType: values.chartType || '',
+    }
 
     try {
-      const res = await getChart(
-        params,
-        values.file?.file
+      const res = await genChart(
+        { req: JSON.stringify(params)},
+        file
       ); // tbd genChart. by ai
 
       if (!res?.data) {
@@ -99,8 +101,10 @@ const AddChart: React.FC = () => {
                 name="file"
                 label="Data File"
                 rules={[{ required: true, message: 'Please upload a CSV file' }]}
+                valuePropName="fileList"
+                getValueFromEvent={(e) => e.fileList}
               >
-                <Upload name="file" maxCount={1} accept=".csv,.xls,.xlsx">
+                <Upload beforeUpload={()=>false} name="file" maxCount={1} accept=".csv,.xls,.xlsx">
                   <Button icon={<UploadOutlined />}>Upload CSV / Excel</Button>
                 </Upload>
               </Form.Item>
