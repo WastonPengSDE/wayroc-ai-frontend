@@ -23,7 +23,14 @@
 
 export default [
   // 🔥 完全移除 /user 这一块
-  { path: '/user', layout: false, routes: [{ path: '/user/login', component: './user/login' }] },
+  { 
+    path: '/user', 
+    layout: false, 
+    routes: [
+      { path: '/user/login', component: './user/login' },
+      { path: '/user/register', component: './user/register' },
+    ] 
+  },
 
   // 根路径直接跳到 智能分析
   { path: '/', redirect: '/add_chart' },
