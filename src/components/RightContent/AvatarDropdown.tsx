@@ -9,6 +9,7 @@ import { Spin } from 'antd';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import { flushSync } from 'react-dom';
+import { JWT_KEY, JWT_USER_KEY } from '@/requestErrorConfig';
 import { outLogin } from '@/services/ant-design-pro/api';
 import HeaderDropdown from '../HeaderDropdown';
 
@@ -72,6 +73,10 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
   const onMenuClick: MenuProps['onClick'] = (event) => {
     const { key } = event;
     if (key === 'logout') {
+      try {
+        localStorage.removeItem(JWT_KEY);
+        localStorage.removeItem(JWT_USER_KEY);
+      } catch (_e) {}
       flushSync(() => {
         setInitialState((s) => ({ ...s, currentUser: undefined }));
       });

@@ -1,6 +1,11 @@
-﻿import type { RequestOptions } from '@@/plugin-request/request';
+import type { RequestOptions } from '@@/plugin-request/request';
 import type { RequestConfig } from '@umijs/max';
+import { history } from '@umijs/max';
 import { message, notification } from 'antd';
+
+const JWT_KEY = 'wayroc_token';
+const JWT_USER_KEY = 'wayroc_user';
+export { JWT_KEY, JWT_USER_KEY };
 
 // 错误处理方案： 错误类型
 enum ErrorShowType {
@@ -70,8 +75,15 @@ export const errorConfig: RequestConfig = {
           }
         }
       } else if (error.response) {
-        // Axios 的错误
-        // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
+        if (error.response.status === 401) {
+          try {
+            localStorage.removeItem(JWT_KEY);
+            localStorage.removeItem(JWT_USER_KEY);
+          } catch (_e) {}
+          message.error('登录已过期，请重新登录');
+          history.push('/user/login');
+          return;
+        }
         message.error(`Response status:${error.response.status}`);
       } else if (error.request) {
         // 请求已经成功发起，但没有收到响应
@@ -85,12 +97,16 @@ export const errorConfig: RequestConfig = {
     },
   },
 
-  // 请求拦截器
+  // 请求拦截器：JWT 鉴权
   requestInterceptors: [
     (config: RequestOptions) => {
-      // 拦截请求配置，进行个性化处理。
-      const url = config?.url?.concat('?token=123');
-      return { ...config, url };
+      try {
+        const token = localStorage.getItem(JWT_KEY);
+        if (token && config?.headers) {
+          (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
+        }
+      } catch (_e) {}
+      return config;
     },
   ],
 

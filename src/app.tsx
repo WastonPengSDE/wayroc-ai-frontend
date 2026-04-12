@@ -7,7 +7,7 @@ import '@ant-design/v5-patch-for-react-19';
 import type { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
 import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
-import { errorConfig } from './requestErrorConfig';
+import { errorConfig, JWT_KEY, JWT_USER_KEY } from './requestErrorConfig';
 const isDev = process.env.NODE_ENV === 'development';
 const isDevOrTest = isDev || process.env.CI;
 const loginPath = '/user/login';
@@ -42,12 +42,16 @@ export async function getInitialState(): Promise<{
   //     settings: defaultSettings as Partial<LayoutSettings>,
   //   };
   // }
-   return {
+  let currentUser: API.CurrentUser | undefined;
+  try {
+    if (localStorage.getItem(JWT_KEY) && localStorage.getItem(JWT_USER_KEY)) {
+      const user = JSON.parse(localStorage.getItem(JWT_USER_KEY)!) as { userAccount?: string };
+      currentUser = { name: user?.userAccount ?? 'Wayroc' } as API.CurrentUser;
+    }
+  } catch (_e) {}
+  return {
     fetchUserInfo,
-    // 如果你想看到水印/头像，可以给一个“假用户”，不想也可以删掉
-    currentUser: {
-      name: 'Wayroc Demo',
-    } as API.CurrentUser,
+    currentUser: currentUser ?? ({ name: 'Wayroc Demo' } as API.CurrentUser),
     settings: defaultSettings as Partial<LayoutSettings>,
   };
 }

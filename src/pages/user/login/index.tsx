@@ -1,5 +1,5 @@
 import Footer from '@/components/Footer';
-// ✅ 只保留 login
+import { JWT_KEY, JWT_USER_KEY } from '@/requestErrorConfig';
 import { login } from '@/services/wayroc/userController';
 
 import { Link } from '@@/exports';
@@ -29,35 +29,31 @@ const Login: React.FC = () => {
     };
   });
 
-const handleSubmit = async (values: API.UserLoginRequest) => {
-  try {
-    const userInfo = await login(values as API.UserLoginRequest);
-    console.log('login response ===>', userInfo);
-
-    // 根据返回的用户对象判断是否成功
-    if (userInfo && userInfo.id) {
-      flushSync(() => {
-        setInitialState((s) => ({
-          ...s,
-          currentUser: userInfo,
-          settings: s?.settings ?? {},
-        }));
-      });
-
-      message.success('Login successful');
-
-      const urlParams = new URL(window.location.href).searchParams;
-      history.push(urlParams.get('redirect') || '/add_chart');
-      return;
+  const handleSubmit = async (values: API.UserLoginRequest) => {
+    try {
+      const res = (await login(values as API.UserLoginRequest)) as { data?: { token?: string; user?: { id?: number; userAccount?: string } }; message?: string };
+      const data = res?.data;
+      if (data?.token && data?.user?.id) {
+        localStorage.setItem(JWT_KEY, data.token);
+        localStorage.setItem(JWT_USER_KEY, JSON.stringify(data.user));
+        flushSync(() => {
+          setInitialState((s) => ({
+            ...s,
+            currentUser: { ...data.user, name: data.user!.userAccount } as API.CurrentUser,
+            settings: s?.settings ?? {},
+          }));
+        });
+        message.success('登录成功');
+        const urlParams = new URL(window.location.href).searchParams;
+        history.push(urlParams.get('redirect') || '/add_chart');
+        return;
+      }
+      message.error(res?.message || '登录失败');
+    } catch (error) {
+      console.error(error);
+      message.error('登录失败，请重试');
     }
-
-    // 如果后端返回 null / undefined / 空对象，就认为登录失败
-    message.error('Login failed, invalid username or password');
-  } catch (error) {
-    console.error(error);
-    message.error('Login failed, please try again');
-  }
-};
+  };
 
 
   return (
